@@ -2,7 +2,7 @@
 #include <string>
 using namespace std;
 
-class human{
+class HUMAN{
 	public:
 		string name;
 		int age;
@@ -27,15 +27,35 @@ void printStringArray( string argv[] ){
 
 int main(){
 
+	cout << "Start" << endl;
 	//char** arr;
 	//arr[0] = 's';
 
-	string arr[4] = {"Uno", "Dos", "Tres", "Cuatro"};
+	//string arr[4] = {"Uno", "Dos", "Tres", "Cuatro"};
+	//arr[5] = "Cinco";
 	//arr[0] = "Hello";
 
-	printStringArray( NULL );
+	HUMAN woynert;
+
+
+	char
+	a = 'a',
+	b = 'b';
+
+	//char** arr = {};
+	//cout << *arr << endl;
+
+	char* ptr;
+	ptr = new char('h');
+
+	char** pptr;
+	pptr = &ptr;
+
+	*(pptr) = new char('b');
+	*(pptr+1) = new char('c');
+
+	cout << *(pptr) << endl;
 
 	cout << "Hey" << endl;
-
 	return 0;
 }

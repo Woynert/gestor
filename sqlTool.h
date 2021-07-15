@@ -112,19 +112,6 @@ public:
 		}
 	}
 
-	void update_node_title(int node_id, int new_father_node_id ){
-		/*
-		if new_father is sibling of node:
-		for child in node:
-			child.father = node.father
-
-		node.father = new_father
-
-
-		*/
-
-		string sql = "UPDATE NODES SET "
-	}
 
 	//Get variables to work with
 	void update_info(){

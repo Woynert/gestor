@@ -1,10 +1,39 @@
 #include <iostream>
+#include <cstring>
 #include "sqlTool.h"
+#include "node_types.h"
 
 using namespace std;
 
 int main(int argc, char** argv)
 {
+	char dest[];
+	char src[] = "Ba";
+	strncpy(dest, src, 10);
+	cout << "--> " << dest << " <--" << endl;
+
+	NODE root;
+	root.title = "Root";
+
+	node_create(0, "Fisica", &root);
+	NODE* node_calculo = node_create(0, "Calculo", &root);
+	NODE* node_tema = node_create(0, "Tema1", node_calculo);
+	node_create(0, "Tarea1", node_tema);
+
+	print_tree(&root, 0);
+
+	node_add_child(node_tema, node_calculo);
+	cout << "Child added" << endl;
+	
+	print_tree(&root, 0);
+	print_tree(node_tema, 0);
+
+	cout << "\nEnded" << endl;
+
+    return 0;
+}
+
+void database(){
 	DB_TOOL DB;
 	DB.url = "databases/example.db";
 
@@ -17,19 +46,13 @@ int main(int argc, char** argv)
 	int node_quimica = DB.create_node(NODE_TYPE_TITLE ,"Calculo", -1);
 	int node_derivadas = DB.create_node(NODE_TYPE_TEXT, "Derivadas", node_quimica);
 	DB.create_node(NODE_TYPE_TEXT, "Integrales", node_quimica);
-
 	DB.create_node(NODE_TYPE_TAREA, "Taller 1", node_quimica);
 	DB.create_node(NODE_TYPE_TAREA, "Taller 2", node_quimica);
 
-	//
-	DB.update_node_title(node_quimica, node_derivadas);
+	//DB.update_node_title(node_quimica, node_derivadas);
 
 	//close
 	DB.close_database();
-
-	cout << "Hello" << endl;
-
-    return 0;
 }
 
 /*
