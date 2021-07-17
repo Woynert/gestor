@@ -7,11 +7,6 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
-	char dest[];
-	char src[] = "Ba";
-	strncpy(dest, src, 10);
-	cout << "--> " << dest << " <--" << endl;
-
 	NODE root;
 	root.title = "Root";
 
@@ -24,7 +19,7 @@ int main(int argc, char** argv)
 
 	node_add_child(node_tema, node_calculo);
 	cout << "Child added" << endl;
-	
+
 	print_tree(&root, 0);
 	print_tree(node_tema, 0);
 
