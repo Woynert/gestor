@@ -23,7 +23,7 @@ int main(int argc, char** argv)
 	tree_move(node_calculo, node_tema);
 	//node_update_parent(node_calculo, node_calculo);
 	print_tree_msg("Move tree", &root, 0);
-	//cout << node_check_sibling(arg_calculo, arg_tema) << endl;
+	//scout << node_check_sibling(arg_calculo, arg_tema) << endl;
 
 	//tree_delete(node_calculo);
 	//print_tree_msg("Delete tree", &root, 0);

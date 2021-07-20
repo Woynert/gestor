@@ -6,15 +6,12 @@ class HUMAN{
 	public:
 		string name;
 		int age;
+}
 
-		int printSecret(){
-			cout << priv() << endl;
-			return(1);
-		}
-
-	private:
-		string priv(){
-			return ("My secret");
+class WOYNERT: public HUMAN{
+	public:
+		void print_msg(){
+			cout << "Mi name is Woynert" << endl;
 		}
 };
 

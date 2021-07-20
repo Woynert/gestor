@@ -1,6 +1,7 @@
 #include <iostream>
 #include <string>
 #include <list>
+using namespace std;
 
 //title
 class NODE{
@@ -17,6 +18,11 @@ class NODE{
 class TEXT_NODE: public NODE{
 	public:
 		string content;
+
+		//setter
+		void set_content (string arg_content){
+			this->content = arg_content;
+		}
 };
 
 //tarea node
@@ -27,16 +33,19 @@ class TAREA_NODE: public TEXT_NODE{
 		string expiration_date;
 };
 
-//functions
+//FUNCTIONS
+//tree related
 NODE* node_create         (int node_type, string title, NODE* node_parent);
 void  node_delete		  (NODE* arg_node);
 void  tree_delete         (NODE* arg_node);
 void  node_update_parent  (NODE* argC       , NODE* argP);
 bool  node_check_sibling  (NODE* node_parent, NODE* node_child);
-void  node_rename         (NODE* arg_node   , string arg_title);
 void  print_tree_msg      (string msg, NODE* node       , int level);
 void  print_tree_recursive(NODE* node       , int level);
 void  tree_move			  (NODE* arg_node   , NODE* arg_parent);
+
+//content related
+void node_rename         (NODE* arg_node, string arg_title);
 
 //create node
 NODE* node_create(int node_type, string title, NODE* node_parent){

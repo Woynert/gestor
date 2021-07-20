@@ -1,3 +1,7 @@
+build/*
 *.db
 *.out
 *.o
+*.swp
+*.gch
+exe
