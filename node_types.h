@@ -8,9 +8,7 @@ class NODE{
 		int node_type = 0;
 		string title  = "Untitled";
 
-		//int parent_id;
 		NODE*  node_parent     = NULL;
-		//NODE** node_children   = NULL;
 		list<NODE*> children;
 		//int    children_amount = 0;
 };
@@ -30,10 +28,17 @@ class TAREA_NODE: public TEXT_NODE{
 };
 
 //functions
-void node_add_child(NODE* node, NODE* parent);
-void node_add_child(NODE* parent, NODE* child);
-bool node_check_sibling (NODE* node_parent, NODE* node_child);
+NODE* node_create         (int node_type, string title, NODE* node_parent);
+void  node_delete		  (NODE* arg_node);
+void  tree_delete         (NODE* arg_node);
+void  node_update_parent  (NODE* argC       , NODE* argP);
+bool  node_check_sibling  (NODE* node_parent, NODE* node_child);
+void  node_rename         (NODE* arg_node   , string arg_title);
+void  print_tree_msg      (string msg, NODE* node       , int level);
+void  print_tree_recursive(NODE* node       , int level);
+void  tree_move			  (NODE* arg_node   , NODE* arg_parent);
 
+//create node
 NODE* node_create(int node_type, string title, NODE* node_parent){
 
 	//create
@@ -43,44 +48,110 @@ NODE* node_create(int node_type, string title, NODE* node_parent){
 	new_node->node_parent = node_parent;
 
 	//set parent
-	node_add_child(node_parent, new_node);
+	node_update_parent(new_node, node_parent);
 
 	return new_node;
 }
 
-//ARREGLAR CONFUSION
-void node_add_child(NODE* parent, NODE* child){
+//delete node
+void node_delete (NODE* arg_node){
+
+	list<NODE*> children_rec;
+	list<NODE*>::iterator it;
+
+	//recopilate children
+	for (it = arg_node->children.begin(); it != arg_node->children.end(); it++){
+		children_rec.push_front(*it);
+	}
+
+	//reparent children
+	for (it = children_rec.begin(); it != children_rec.end(); it++){
+		cout << "Moving " << (*it)->title << endl;
+		node_update_parent(*it, arg_node->node_parent);
+	}
+
+	//delete from parent
+	arg_node->node_parent->children.remove(arg_node);
+
+	//delete from memory
+	delete(arg_node);
+}
+
+//delete entire node tree
+void tree_delete(NODE* arg_node){
+
+	list<NODE*> children_rec;
+	list<NODE*>::iterator it;
+
+	//recopilate children
+	for (it = arg_node->children.begin(); it != arg_node->children.end(); it++){
+		children_rec.push_front(*it);
+	}
+
+	//delete children from memory
+	for (it = children_rec.begin(); it != children_rec.end(); it++){
+		cout << "Deleting " << (*it)->title << endl;
+		tree_delete(*it);
+	}
+
+	//delete from parent
+	arg_node->node_parent->children.remove(arg_node);
+
+	//delete from memory
+	delete(arg_node);
+}
+
+//update parent
+void node_update_parent(NODE* argC, NODE* argP){
 
 	//avoid parent loop
-	if (node_check_sibling(child, parent)){
+	if (node_check_sibling(argC, argP)){
 		cout << "True" <<  endl;
 
-		bool child_has_parent = child->node_parent != NULL;
+		bool child_has_parent = argC->node_parent != NULL;
 
 		//iterate children
 		list<NODE*>::iterator it;
-		for (it = child->children.begin(); it != child->children.end(); it++)
+		for (it = argC->children.begin(); it != argC->children.end(); it++)
 		{
 			//set new father
-			(*it)->node_parent = child->node_parent;
+			(*it)->node_parent = argC->node_parent;
 
 			//set new children
 			if (child_has_parent)
-				child->node_parent->children.push_front( *it );
+				argC->node_parent->children.push_front( *it );
 		}
-		child->children.clear();
+
+		//clean children
+		argC->children.clear();
 	}
 
 	//remove previous parenting
-	if (child->node_parent){
-		child->node_parent->children.remove( child );
+	if (argC->node_parent){
+		argC->node_parent->children.remove( argC );
 	}
 
 	//set parent
-	parent->children.push_front(child);
-	child->node_parent = parent;
+	argP->children.push_front( argC );
+	argC->node_parent = argP;
 }
 
+//move tree
+void tree_move (NODE* arg_node, NODE* arg_parent){
+
+	//avoid parent loop
+	if (node_check_sibling(arg_node, arg_parent)){
+		cout << "Error. Cant move tree to inside of itself" << endl;
+		return;
+	}
+	else{
+		//realocate parent
+		node_update_parent(arg_node, arg_parent);
+	}
+	return;
+}
+
+//check its sibling
 bool node_check_sibling (NODE* node_parent, NODE* node_child){
 
 	//parent interator
@@ -101,8 +172,19 @@ bool node_check_sibling (NODE* node_parent, NODE* node_child){
 	return 0;
 }
 
-//print
-void print_tree(NODE* node, int level){
+//retitle node
+void node_rename(NODE* arg_node, string arg_title){
+	arg_node->title = arg_title;
+}
+
+//print public
+void print_tree_msg(string msg, NODE* node, int level){
+	cout << "\n" << msg << endl;
+	print_tree_recursive(node, level);
+}
+
+//print private
+void print_tree_recursive(NODE* node, int level){
 
 	//avoid infinite loop
 	if (level > 10) return;
@@ -129,6 +211,6 @@ void print_tree(NODE* node, int level){
 	//recursion
 	for (it = node->children.begin(); it != node->children.end(); it++)
 	{
-		print_tree(*it, level+1);
+		print_tree_recursive(*it, level+1);
 	}
 }

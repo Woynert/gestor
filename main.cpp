@@ -10,18 +10,41 @@ int main(int argc, char** argv)
 	NODE root;
 	root.title = "Root";
 
-	node_create(0, "Fisica", &root);
+	NODE* node_fisica  = node_create(0, "Fisica", &root);
 	NODE* node_calculo = node_create(0, "Calculo", &root);
 	NODE* node_tema = node_create(0, "Tema1", node_calculo);
 	node_create(0, "Tarea1", node_tema);
 
-	print_tree(&root, 0);
 
-	node_add_child(node_tema, node_calculo);
-	cout << "Child added" << endl;
+	//update parents
+	//printf("\nPrint root\n");
+	print_tree_msg("Start", &root, 0);
 
-	print_tree(&root, 0);
-	print_tree(node_tema, 0);
+	tree_move(node_calculo, node_tema);
+	//node_update_parent(node_calculo, node_calculo);
+	print_tree_msg("Move tree", &root, 0);
+	//cout << node_check_sibling(arg_calculo, arg_tema) << endl;
+
+	//tree_delete(node_calculo);
+	//print_tree_msg("Delete tree", &root, 0);
+
+	/*node_update_parent(node_calculo, node_tema);
+	print_tree_msg("Update parent", &root, 0);
+
+	node_update_parent(node_tema, node_fisica);
+	print_tree_msg("Update parent", &root, 0);
+
+	//change title
+	node_rename(node_fisica, "FISICA");
+	print_tree_msg("Rename", &root, 0);
+
+	//delete node Fisica
+	node_delete(node_fisica);
+	print_tree_msg("Delete node", &root, 0);
+
+	//delete tree Tema1
+	tree_delete(node_tema);
+	print_tree_msg("Delete tree", &root, 0);*/
 
 	cout << "\nEnded" << endl;
 
