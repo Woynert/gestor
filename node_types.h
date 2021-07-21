@@ -3,56 +3,92 @@
 #include <list>
 using namespace std;
 
+//macros
+#define NODE_TYPE_TITLE 0
+#define NODE_TYPE_TEXT  1
+#define NODE_TYPE_TAREA 2
+
 //title
 class NODE{
-	public:
-		int node_type = 0;
-		string title  = "Untitled";
+public:
 
-		NODE*  node_parent     = NULL;
-		list<NODE*> children;
-		//int    children_amount = 0;
+	//properties
+	int node_type = NODE_TYPE_TITLE;
+	string title  = "Untitled";
+
+	NODE* node_parent = NULL;
+	list<NODE*> children;
+
+	//Polymorphic
+	virtual ~NODE(){}
+
+	//retitle node
+	void set_title(string arg_title){
+		this->title = arg_title;
+	}
 };
 
 //text node
-class TEXT_NODE: public NODE{
-	public:
-		string content;
+class NODE_TEXT: public NODE{
+public:
+	NODE_TEXT(){ node_type = NODE_TYPE_TEXT; }
 
-		//setter
-		void set_content (string arg_content){
-			this->content = arg_content;
-		}
+	//properties
+	string content = "";
+
+	//setter
+	void set_content (string arg_content){
+		this->content = arg_content;
+	}
 };
 
 //tarea node
-class TAREA_NODE: public TEXT_NODE{
-	public:
-		bool   done;
-		float  grade;
-		string expiration_date;
+class NODE_TAREA: public NODE_TEXT{
+public:
+	NODE_TAREA(){ node_type = NODE_TYPE_TAREA; }
+
+	//properties
+	bool   done = false;
+	float  grade;
+	string expiration_date;
 };
 
 //FUNCTIONS
 //tree related
 NODE* node_create         (int node_type, string title, NODE* node_parent);
+NODE_TEXT* node_text_create(string title, NODE* node_parent);
 void  node_delete		  (NODE* arg_node);
 void  tree_delete         (NODE* arg_node);
 void  node_update_parent  (NODE* argC       , NODE* argP);
 bool  node_check_sibling  (NODE* node_parent, NODE* node_child);
 void  print_tree_msg      (string msg, NODE* node       , int level);
 void  print_tree_recursive(NODE* node       , int level);
+void  print_tree_info     (NODE* node       , int level);
 void  tree_move			  (NODE* arg_node   , NODE* arg_parent);
 
-//content related
-void node_rename         (NODE* arg_node, string arg_title);
 
 //create node
 NODE* node_create(int node_type, string title, NODE* node_parent){
 
 	//create
-	NODE *new_node = new NODE;
-	new_node->node_type   = node_type;
+	NODE* new_node;// = new NODE;
+
+	switch(node_type){
+		case NODE_TYPE_TITLE:
+			new_node = new NODE();
+			break;
+
+		case NODE_TYPE_TEXT:
+			new_node = new NODE_TEXT();
+			break;
+
+		case NODE_TYPE_TAREA:
+			new_node = new NODE_TAREA();
+			break;
+	}
+
+	//set
+	//new_node->node_type   = node_type;
 	new_node->title       = title;
 	new_node->node_parent = node_parent;
 
@@ -61,6 +97,16 @@ NODE* node_create(int node_type, string title, NODE* node_parent){
 
 	return new_node;
 }
+
+//
+/*TEXT_NODE* node_text_create(string title, NODE* node_parent){
+
+	//create base node
+	NODE* base_node = node_create(title, node_parent);
+	TEXT_NODE* text_node = dynamic_cast<TEXT_NODE*>( base_node );
+	if (text_node == 0) cout << "Null pointer" << endl;
+
+}*/
 
 //delete node
 void node_delete (NODE* arg_node){
@@ -181,15 +227,14 @@ bool node_check_sibling (NODE* node_parent, NODE* node_child){
 	return 0;
 }
 
-//retitle node
-void node_rename(NODE* arg_node, string arg_title){
-	arg_node->title = arg_title;
-}
-
 //print public
-void print_tree_msg(string msg, NODE* node, int level){
+void print_tree_msg(string msg, NODE* node, int level, bool info){
 	cout << "\n" << msg << endl;
-	print_tree_recursive(node, level);
+
+	if (info)
+		print_tree_info(node, level);
+	else
+		print_tree_recursive(node, level);
 }
 
 //print private
@@ -198,11 +243,14 @@ void print_tree_recursive(NODE* node, int level){
 	//avoid infinite loop
 	if (level > 10) return;
 
+	//blank space
+	string blank;
 	for (int i = 0; i < 2*level; i++)
-		cout << " ";
+		blank += " ";
 
-	cout << node->title << ":";
+	cout << blank << node->title << ":" << node->node_type << ":";
 
+	//print parent
 	if (node->node_parent)
 		cout << node->node_parent->title;
 	else
@@ -221,5 +269,60 @@ void print_tree_recursive(NODE* node, int level){
 	for (it = node->children.begin(); it != node->children.end(); it++)
 	{
 		print_tree_recursive(*it, level+1);
+	}
+}
+
+//print with extra info
+void print_tree_info(NODE* node, int level){
+
+	//avoid infinite loop
+	if (level > 10) return;
+
+	//blank space
+	string blank;
+	for (int i = 0; i < 2*level; i++)
+		blank += " ";
+
+	cout << blank << node->title;
+	/*cout <<  ":" << node->node_type << ":";
+
+	//print parent
+	if (node->node_parent)
+		cout << node->node_parent->title;
+	else
+		cout << "NULL";
+	cout << "/ ";
+
+	//list children
+	list<NODE*>::iterator it;
+	for (it = node->children.begin(); it != node->children.end(); it++)
+	{
+		cout << (*it)->title << ", ";
+	}
+	cout << endl;*/
+
+	//print custom info
+	//cout << blank;
+	switch(node->node_type){
+		case NODE_TYPE_TITLE:{
+			cout << " TYPE TITLE" << endl;
+		}break;
+
+		case NODE_TYPE_TEXT:{
+			NODE_TEXT* n_txt = dynamic_cast<NODE_TEXT*>(node);
+			cout << " TYPE TEXT Content: " << n_txt->content << endl;
+		}break;
+
+		case NODE_TYPE_TAREA:{
+			NODE_TAREA* n_tarea = dynamic_cast<NODE_TAREA*>(node);
+			cout << " TYPE TAREA Done? " << n_tarea->done << endl;
+		}break;
+	}
+
+	//recursion
+	list<NODE*>::iterator it;
+	for (it = node->children.begin(); it != node->children.end(); it++)
+	{
+		print_tree_info(*it, level+1);
 	}
 }

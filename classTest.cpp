@@ -1,58 +1,97 @@
 #include <iostream>
 #include <string>
+#include <list>
+
 using namespace std;
 
+//polymorphic class
 class HUMAN{
-	public:
-		string name;
-		int age;
-}
+public:
+	virtual ~HUMAN(){}
 
-class WOYNERT: public HUMAN{
-	public:
-		void print_msg(){
-			cout << "Mi name is Woynert" << endl;
-		}
+	int type = 0;
+	string name;
 };
 
-void printStringArray( string argv[] ){
+//derived1
+class WOYNERT: public HUMAN{
+public:
+	WOYNERT(){
+		type = 1;
+	}
 
-	if (argv)
-		for (int i = 0; i < 3; i++)
-			cout << argv[i] << endl;
-}
+	void print_msg(){
+		cout << "Mi name is Woynert" << endl;
+	}
+};
+
+//derived2
+class REIDER: public HUMAN{
+public:
+	REIDER(){
+		type = 2;
+	}
+
+	void print_info(){
+		cout << "I like trains" << endl;
+	}
+};
 
 int main(){
 
 	cout << "Start" << endl;
-	//char** arr;
-	//arr[0] = 's';
 
-	//string arr[4] = {"Uno", "Dos", "Tres", "Cuatro"};
-	//arr[5] = "Cinco";
-	//arr[0] = "Hello";
+	//create list
+	list<HUMAN*> myList;
+	myList.push_back(new HUMAN()  );
+	myList.push_back(new WOYNERT());
+	myList.push_back(new REIDER() );
 
-	HUMAN woynert;
+	//iterate list
+	list<HUMAN*>::iterator it;
+	for (it = myList.begin(); it != myList.end(); it++){
 
+		//if (dynamic_cast<WOYNERT*>(*it) != 0){
+		cout << (*it)->type << endl;
 
-	char
-	a = 'a',
-	b = 'b';
+		switch((*it)->type){
 
-	//char** arr = {};
-	//cout << *arr << endl;
+			//default human
+			case 0:
+				break;
 
-	char* ptr;
-	ptr = new char('h');
+			//woynert
+			case 1:{
+				WOYNERT* myW = dynamic_cast<WOYNERT*>(*it);
+				myW->print_msg();
+			}break;
 
-	char** pptr;
-	pptr = &ptr;
+			//reider
+			case 2:{
+				REIDER* myR = dynamic_cast<REIDER*>(*it);
+				myR->print_info();
+			}break;
 
-	*(pptr) = new char('b');
-	*(pptr+1) = new char('c');
+			default:
+				break;
+		}
 
-	cout << *(pptr) << endl;
+	}
 
-	cout << "Hey" << endl;
+	cout << "End" << endl;
 	return 0;
 }
+
+
+
+/*
+	A list containig these
+	[INT ID, NODE* RAW_NODE]
+	[INT ID, NODE* RAW_NODE]
+	[INT ID, NODE* RAW_NODE]
+	[INT ID, NODE* RAW_NODE]
+
+	TODO
+	Using an array of functions with containers as an argument (if needed)
+*/
+

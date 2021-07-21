@@ -1,9 +1,9 @@
 
 #create executable
-output: ./build/main.o ./build/node_types.o ./build/sqlite3.o
+output: ./build/main.o ./build/sqlite3.o
 	g++ ./build/main.o ./lib/sqlite3.o -lpthread -ldl -o exe
 
-./build/main.o: main.cpp
+./build/main.o: main.cpp ./build/node_types.o
 	g++ -c main.cpp -o ./build/main.o
 
 ./build/node_types.o: node_types.h

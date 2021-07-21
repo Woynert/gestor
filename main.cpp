@@ -7,29 +7,31 @@ using namespace std;
 
 int main(int argc, char** argv)
 {
+	//root
 	NODE root;
 	root.title = "Root";
 
-	NODE* node_fisica  = node_create(0, "Fisica", &root);
-	NODE* node_calculo = node_create(0, "Calculo", &root);
-	NODE* node_tema = node_create(0, "Tema1", node_calculo);
-	node_create(0, "Tarea1", node_tema);
+	//children
+	NODE* node_fisica  = node_create(1, "Fisica", &root);
+	NODE_TEXT* node_calculo = dynamic_cast<NODE_TEXT*> ( node_create(1, "Calculo", &root) );
+
+	NODE* node_tema = node_create(2, "Tema", node_calculo);
+	node_create(2, "Tarea", node_tema);
 
 
-	//update parents
-	//printf("\nPrint root\n");
-	print_tree_msg("Start", &root, 0);
+	//print
+	print_tree_msg("Start", &root, 0, false);
 
-	tree_move(node_calculo, node_tema);
-	//node_update_parent(node_calculo, node_calculo);
-	print_tree_msg("Move tree", &root, 0);
-	//scout << node_check_sibling(arg_calculo, arg_tema) << endl;
+	//change name
+	node_calculo->set_content("Content Example Lorem Ipsum");
+	print_tree_msg("Info", &root, 0, true);
+
+	/*/TREE TEST
+	//tree_move(node_calculo, node_tema);
+	//print_tree_msg("Move tree", &root, 0);
 
 	//tree_delete(node_calculo);
 	//print_tree_msg("Delete tree", &root, 0);
-
-	/*node_update_parent(node_calculo, node_tema);
-	print_tree_msg("Update parent", &root, 0);
 
 	node_update_parent(node_tema, node_fisica);
 	print_tree_msg("Update parent", &root, 0);
