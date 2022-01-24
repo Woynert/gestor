@@ -1,30 +1,72 @@
 #include <iostream>
 #include <cstring>
-#include "sqlTool.h"
+#include "macros.h"
+#include "db_manager.h"
 #include "node_types.h"
 
 using namespace std;
 
+struct global global; //variables
+
+
+//void database();
+
+
 int main(int argc, char** argv)
 {
-	//root
-	NODE root;
-	root.title = "Root";
 
-	//children
-	NODE* node_fisica  = node_create(1, "Fisica", &root);
-	NODE_TEXT* node_calculo = dynamic_cast<NODE_TEXT*> ( node_create(1, "Calculo", &root) );
+	// initialize
+	global.profile_seed = 1000;
+	global.node_count   = 0;
 
-	NODE* node_tema = node_create(2, "Tema", node_calculo);
-	node_create(2, "Tarea", node_tema);
+
+	// root
+
+	NODE* root =
+	node_create (NODE_TYPE_TITLE, "Rooter", NULL);
+
+	// children
+
+	NODE* node_fisica  =
+	node_create (NODE_TYPE_TEXT, "Fisica", root);
+
+	NODE_TEXT* node_calculo = dynamic_cast<NODE_TEXT*> (
+	node_create (NODE_TYPE_TEXT, "Calculo", root) );
+
+	NODE* node_tema =
+	node_create (NODE_TYPE_TAREA, "Tema" , node_calculo);
+	node_create (NODE_TYPE_TAREA, "Tarea", node_tema);
 
 
 	//print
-	print_tree_msg("Start", &root, 0, false);
+	print_tree_msg("Start", root, 0, false);
 
 	//change name
 	node_calculo->set_content("Content Example Lorem Ipsum");
-	print_tree_msg("Info", &root, 0, true);
+	print_tree_msg("Info", root, 0, true);
+
+
+	// database manager
+	DB_MANAGER dbm = *(new DB_MANAGER());
+
+	if (dbm.start() == 0)
+	{
+		dbm.start_tables();
+
+
+		//add some nodes
+		dbm.add_node(node_fisica);
+		dbm.add_node(root);
+
+		//dbm.delete_node(node_fisica->id);
+
+		node_fisica->set_title("FISICA");
+
+		dbm.update_node(node_fisica);
+
+		dbm.close();
+	}
+
 
 	/*/TREE TEST
 	//tree_move(node_calculo, node_tema);
@@ -34,28 +76,28 @@ int main(int argc, char** argv)
 	//print_tree_msg("Delete tree", &root, 0);
 
 	node_update_parent(node_tema, node_fisica);
-	print_tree_msg("Update parent", &root, 0);
+	print_tree_msg("Update parent", root, 0, false);
 
 	//change title
-	node_rename(node_fisica, "FISICA");
-	print_tree_msg("Rename", &root, 0);
+	node_fisica->set_title("FISICA");
+	print_tree_msg("Rename", root, 0, false);
 
 	//delete node Fisica
 	node_delete(node_fisica);
-	print_tree_msg("Delete node", &root, 0);
+	print_tree_msg("Delete node", root, 0, false);
 
 	//delete tree Tema1
 	tree_delete(node_tema);
-	print_tree_msg("Delete tree", &root, 0);*/
+	print_tree_msg("Delete tree", root, 0, false);*/
 
 	cout << "\nEnded" << endl;
 
     return 0;
 }
 
-void database(){
+/*void database(){
 	DB_TOOL DB;
-	DB.url = "databases/example.db";
+	DB.url = "./db/example.db";
 
 	//setup
 	DB.open_database();
@@ -73,7 +115,7 @@ void database(){
 
 	//close
 	DB.close_database();
-}
+}*/
 
 /*
 	TIPOS DE NODOS
@@ -91,10 +133,10 @@ void database(){
 			+ INTEGRALES
 
 	TABLE NODES
-	NODE_ID INT
-	NODE_TYPE_ID INT
-	NODE_TITLE TXT
-	FATHER_ID INT
+	NODE_ID      INT
+	NODE_TYPE    INT
+	NODE_TITLE   TXT
+	FATHER_ID    INT
 
 	TABLE TEXT_NODES
 	NODE_ID INT

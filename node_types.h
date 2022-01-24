@@ -1,71 +1,25 @@
 #include <iostream>
 #include <string>
 #include <list>
+#include "macros.h"
+#include "node_classes.h"
+
 using namespace std;
 
-//macros
-#define NODE_TYPE_TITLE 0
-#define NODE_TYPE_TEXT  1
-#define NODE_TYPE_TAREA 2
 
-//title
-class NODE{
-public:
-
-	//properties
-	int node_type = NODE_TYPE_TITLE;
-	string title  = "Untitled";
-
-	NODE* node_parent = NULL;
-	list<NODE*> children;
-
-	//Polymorphic
-	virtual ~NODE(){}
-
-	//retitle node
-	void set_title(string arg_title){
-		this->title = arg_title;
-	}
-};
-
-//text node
-class NODE_TEXT: public NODE{
-public:
-	NODE_TEXT(){ node_type = NODE_TYPE_TEXT; }
-
-	//properties
-	string content = "";
-
-	//setter
-	void set_content (string arg_content){
-		this->content = arg_content;
-	}
-};
-
-//tarea node
-class NODE_TAREA: public NODE_TEXT{
-public:
-	NODE_TAREA(){ node_type = NODE_TYPE_TAREA; }
-
-	//properties
-	bool   done = false;
-	float  grade;
-	string expiration_date;
-};
 
 //FUNCTIONS
 //tree related
-NODE* node_create         (int node_type, string title, NODE* node_parent);
-NODE_TEXT* node_text_create(string title, NODE* node_parent);
-void  node_delete		  (NODE* arg_node);
-void  tree_delete         (NODE* arg_node);
-void  node_update_parent  (NODE* argC       , NODE* argP);
-bool  node_check_sibling  (NODE* node_parent, NODE* node_child);
-void  print_tree_msg      (string msg, NODE* node       , int level);
-void  print_tree_recursive(NODE* node       , int level);
-void  print_tree_info     (NODE* node       , int level);
-void  tree_move			  (NODE* arg_node   , NODE* arg_parent);
-
+NODE*      node_create          (int    node_type  , string title       , NODE* node_parent);
+NODE_TEXT* node_text_create     (string title      , NODE*  node_parent );
+void       node_delete		    (NODE*  arg_node   );
+void       tree_delete          (NODE*  arg_node   );
+void       node_update_parent   (NODE*  argC       , NODE*  argP        );
+bool       node_check_sibling   (NODE*  node_parent, NODE*  node_child  );
+void       print_tree_msg       (string msg        , NODE*  node        , int level);
+void       print_tree_recursive (NODE*  node       , int    level       );
+void       print_tree_info      (NODE*  node       , int    level       );
+void       tree_move		    (NODE*  arg_node   , NODE*  arg_parent  );
 
 //create node
 NODE* node_create(int node_type, string title, NODE* node_parent){
@@ -89,14 +43,23 @@ NODE* node_create(int node_type, string title, NODE* node_parent){
 
 	//set
 	//new_node->node_type   = node_type;
-	new_node->title       = title;
-	new_node->node_parent = node_parent;
+	new_node->title = title;
 
-	//set parent
-	node_update_parent(new_node, node_parent);
+	// set id
+	new_node->id = global.profile_seed + global.node_count;
+	global.node_count += 1;
+
+	// set parent
+	if (node_parent)
+	{
+		new_node->node_parent = node_parent;
+
+		node_update_parent(new_node, node_parent);
+	}
 
 	return new_node;
 }
+
 
 //
 /*TEXT_NODE* node_text_create(string title, NODE* node_parent){
@@ -240,15 +203,17 @@ void print_tree_msg(string msg, NODE* node, int level, bool info){
 //print private
 void print_tree_recursive(NODE* node, int level){
 
-	//avoid infinite loop
-	if (level > 10) return;
+	// infinite loop
+	if (level > 10){
+		cout << "WARNING: Posible infinite loop\n";
+	}
 
 	//blank space
-	string blank;
+	string blank = " ";
 	for (int i = 0; i < 2*level; i++)
 		blank += " ";
 
-	cout << blank << node->title << ":" << node->node_type << ":";
+	cout << node->id << blank << node->title << ":" << node->node_type << ":";
 
 	//print parent
 	if (node->node_parent)

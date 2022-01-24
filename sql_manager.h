@@ -3,24 +3,25 @@
 #include "macros.h"
 #include "lib/sqlite3.h"
 
+
 //Macros
 #define CALLBACK_GET_NODE_COUNT 0
 
 using namespace std;
 
 //classes
-class DB_TOOL;
+class SQL_TOOL;
 class CALLBACK_PACK;
 
 //allow to manage query callbacks
 class CALLBACK_PACK{
 public:
-	DB_TOOL* dbtool;
+	SQL_TOOL* dbtool;
 	int callback_case;
 };
 
 //way of accesing the db
-class DB_TOOL{
+class SQL_TOOL{
 public:
 
 	//properties
@@ -30,7 +31,8 @@ public:
 	int	node_count = 0;
 
 	//open/create DB
-	int open_database(){
+	int open_database ()
+	{
 	    int exit = sqlite3_open(url.c_str(), &DB);
 
 		//check error
@@ -42,89 +44,14 @@ public:
 	}
 
 	//close
-	void close_database(){
-	    sqlite3_close(DB);
+	void close_database ()
+	{
+	    sqlite3_close (DB);
 	}
-
-	//create initial tables
-	int start_tables(){
-		string sql;
-		sql = "CREATE TABLE NODES("
-			"NODE_ID    INT PRIMARY KEY NOT NULL, "
-			"NODE_TYPE  INT			    NOT NULL, "
-			"NODE_TITLE TXT             NOT NULL, "
-			"FATHER_ID  INT             NOT NULL);";
-
-		sql += "CREATE TABLE TEXT_NODES("
-			"NODE_ID INT PRIMARY KEY NOT NULL, "
-			"CONTENT TXT             NOT NULL);";
-
-		sql += "CREATE TABLE TAREA_NODES("
-			"NODE_ID  INT PRIMARY KEY NOT NULL, "
-			"DONE     BOOL            NOT NULL, "
-			"GRADE    FLOAT           NOT NULL, "
-			"EXPIRATION_DATE TXT              );";
-
-		return createTable(DB, sql);
-	}
-
-	//create NEW NODE
-	int create_node(int node_type, string title, int fatherId){
-
-		int node_id = node_count+1;
-
-		string sql = "INSERT INTO NODES VALUES("
-		+ to_string(node_id)   + " , " //NODE_ID
-		+ to_string(node_type) + " ,'" //NODE_TYPE
-		+ title                + "','" //TITLE
-		+ to_string(fatherId)  + "');";//FATHER_ID
-
-		switch (node_type){
-			case NODE_TYPE_TEXT:
-				sql += "INSERT INTO TEXT_NODES VALUES("
-				+ to_string(node_id) + " , " //NODE_ID
-				+ "''"               + "); ";//CONTENT
-				break;
-
-			case NODE_TYPE_TAREA:
-				sql += "INSERT INTO TAREA_NODES VALUES("
-				+ to_string(node_id) + " , " //NODE_ID
-				+ "FALSE"            + " , " //DONE
-				+ "0.00"             + " , " //GRADE
-				+ "NULL"             + "); ";//EXPIRATION_DATE
-				break;
-		}
-
-		//insert
-		int exit = insert(DB, sql);
-
-		//check
-		if (exit == SQLITE_OK){
-			node_count++;
-			printf("Finish insert %s node_count: %i exit: %i\n", title.c_str(), node_count, exit);
-			return node_count;
-		}
-		else{
-			printf("Finish insert %s node_count: %i exit: %i\n", title.c_str(), node_count, exit);
-			return -1;
-		}
-	}
-
-
-	//Get variables to work with
-	void update_info(){
-
-		//node number
-		string query = "SELECT COUNT(NODE_ID) FROM NODES;";
-		select(DB, query, CALLBACK_GET_NODE_COUNT);
-
-		cout << "Update_info. node_count: " << node_count << endl;
-	}
-
-private:
 
 	//create Table
-	int createTable(sqlite3* DB, string query){
+	int create_table (string query)
+	{
 
 	    char* msgError;
 		int exit = 0;
@@ -143,13 +70,13 @@ private:
 	}
 
 	//callback
-	static int callback(void* data, int argc, char** argv, char** azColName)
+	static int callback (void* data, int argc, char** argv, char** azColName)
 	{
 		//convert void* to CALLBACK_PACK
 		CALLBACK_PACK callback_pack = *((CALLBACK_PACK*) data);
 
 		//get values
-		DB_TOOL* dbtool = callback_pack.dbtool;
+		SQL_TOOL* dbtool = callback_pack.dbtool;
 		int option = callback_pack.callback_case;
 
 		//case
@@ -173,7 +100,8 @@ private:
 	}
 
 	//select
-	int select(sqlite3* DB, string query, int callback_case){
+	int select (sqlite3* DB, string query, int callback_case)
+	{
 
 		char* msgError;
 
@@ -196,7 +124,8 @@ private:
 	}
 
 	//insert to table
-	int insert(sqlite3* DB, string query){
+	int insert (string query)
+	{
 
 		char* msgError;
 		int exit = 0;
@@ -206,7 +135,7 @@ private:
 
 		//check error
 	    if (exit != SQLITE_OK) {
-	        cerr << "Error Insert: " << msgError << endl;
+	        cerr << "Error: " << msgError << endl;
 	        sqlite3_free(msgError);
 	    }
 	    //else std::cout << "Records created Successfully!" << std::endl;
@@ -241,7 +170,7 @@ private:
                    "NAME           TEXT    NOT NULL, "
                    "AGE            INT     NOT NULL);";
 
-	createTable(DB, query);
+	create_table(DB, query);
 
 	//insert info
 	query = "INSERT INTO PERSON VALUES"
